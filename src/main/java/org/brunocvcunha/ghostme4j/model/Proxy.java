@@ -15,11 +15,14 @@
  */
 package org.brunocvcunha.ghostme4j.model;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+
+import org.brunocvcunha.ghostme4j.helper.GhostMeHelper;
 
 /**
  * Proxy Representation
@@ -35,6 +38,7 @@ public class Proxy {
   private String country;
   private boolean online;
   private long latency;
+  private boolean anonymous;
 
   /**
    * @return the ip
@@ -47,7 +51,7 @@ public class Proxy {
    * @param ip the ip to set
    */
   public void setIp(String ip) {
-    this.ip = ip;
+    this.ip = ip.trim();
   }
 
   /**
@@ -121,6 +125,20 @@ public class Proxy {
   }
 
   /**
+   * @return the anonymous
+   */
+  public boolean isAnonymous() {
+    return anonymous;
+  }
+
+  /**
+   * @param anonymous the anonymous to set
+   */
+  public void setAnonymous(boolean anonymous) {
+    this.anonymous = anonymous;
+  }
+
+  /**
    * Update the proxy status
    */
   public void updateStatus() {
@@ -157,6 +175,33 @@ public class Proxy {
 
     online = true;
     latency = totalPing / total;
+  }
+
+
+  /**
+   * Update the anonymous status of the proxy
+   * @throws IOException I/O error
+   */
+  public void updateAnonymity() throws IOException {
+    ProxyBinResponse response = GhostMeHelper.getMyInformation(this.getJavaNetProxy());
+
+    if (!response.getOrigin().equalsIgnoreCase(this.getIp())) {
+      anonymous = false;
+      return;
+    }
+
+    if (!response.getHeaders().get("X-Forwarded-For").equalsIgnoreCase(this.getIp())) {
+      anonymous = false;
+      return;
+    }
+
+    if (!response.getHeaders().get("X-Real-Ip").equalsIgnoreCase(this.getIp())) {
+      anonymous = false;
+      return;
+    }
+
+    anonymous = true;
+
   }
 
   /*
@@ -210,6 +255,13 @@ public class Proxy {
     if (type != other.type)
       return false;
     return true;
+  }
+
+  /**
+   * @return java.net.Proxy for the current instance
+   */
+  public java.net.Proxy getJavaNetProxy() {
+    return new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(ip, port));
   }
 
   /*

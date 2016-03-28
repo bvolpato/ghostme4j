@@ -15,7 +15,14 @@
  */
 package org.brunocvcunha.ghostme4j.helper;
 
-import org.brunocvcunha.inutils4j.MyStringUtils;
+import com.google.gson.GsonBuilder;
+
+import java.io.IOException;
+import java.net.Proxy;
+import java.util.LinkedHashMap;
+
+import org.brunocvcunha.ghostme4j.model.ProxyBinResponse;
+import org.brunocvcunha.inutils4j.MyHTTPUtils;
 
 /**
  * Ghost Me Helper
@@ -26,10 +33,20 @@ import org.brunocvcunha.inutils4j.MyStringUtils;
 public class GhostMeHelper {
 
   /**
-   * @return my ip
+   * @return my ip info
+   * @throws IOException I/O Error
    */
-  public static String getMyIp() {
-    String ip = MyStringUtils.getContent("http://ipinfo.io/ip");
-    return ip;
+  public static ProxyBinResponse getMyInformation() throws IOException {
+    return getMyInformation(null);
+  }
+  
+  /**
+   * @return my ip info
+   * @throws IOException I/O Error
+   */
+  public static ProxyBinResponse getMyInformation(Proxy proxyToUse) throws IOException {
+    String ipInfo = MyHTTPUtils.getContent("http://httpbin.org/get?show_env=1", new LinkedHashMap<String, String>(), proxyToUse);
+
+    return new GsonBuilder().create().fromJson(ipInfo, ProxyBinResponse.class);
   }
 }

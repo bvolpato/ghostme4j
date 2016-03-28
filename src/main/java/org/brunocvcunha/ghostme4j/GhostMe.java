@@ -57,6 +57,11 @@ public class GhostMe {
         if (!proxy.isOnline()) {
           continue;
         }
+        
+        proxy.updateAnonymity();
+        if (!proxy.isAnonymous()) {
+          continue;
+        }
       }
 
       LOGGER.info("Using Proxy: " + proxy.toString());
@@ -80,13 +85,21 @@ public class GhostMe {
     Proxy use = getProxy(test);
 
     if (use != null) {
-      System.setProperty("http.proxyHost", use.getIp());
-      System.setProperty("http.proxyPort", String.valueOf(use.getPort()));
-      System.setProperty("https.proxyHost", use.getIp());
-      System.setProperty("https.proxyPort", String.valueOf(use.getPort()));
+      applyProxy(use);
     }
 
     return use;
   }
 
-}
+  
+  /**
+   * Apply Proxy
+   * @param use Proxy to use
+   */
+  public static void applyProxy(Proxy use) {
+    System.setProperty("http.proxyHost", use.getIp());
+    System.setProperty("http.proxyPort", String.valueOf(use.getPort()));
+    System.setProperty("https.proxyHost", use.getIp());
+    System.setProperty("https.proxyPort", String.valueOf(use.getPort()));
+  }
+} 

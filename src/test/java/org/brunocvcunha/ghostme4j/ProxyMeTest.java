@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import org.brunocvcunha.ghostme4j.helper.GhostMeHelper;
 import org.brunocvcunha.ghostme4j.model.Proxy;
+import org.brunocvcunha.ghostme4j.model.ProxyBinResponse;
 import org.junit.Test;
 
 /**
@@ -35,11 +36,30 @@ public class ProxyMeTest {
    * @throws Exception
    */
   @Test
-  public void testProxy() throws Exception {
+  public void testProxySystem() throws Exception {
 
     Proxy used = GhostMe.ghostMySystemProperties(true);
 
-    assertEquals(used.getIp().trim(), GhostMeHelper.getMyIp().trim());
-
+    ProxyBinResponse response = GhostMeHelper.getMyInformation();
+    assertEquals(used.getIp().trim(), response.getOrigin().trim());
+    assertEquals(used.getIp().trim(), response.getHeaders().get("X-Forwarded-For"));
+    assertEquals(used.getIp().trim(), response.getHeaders().get("X-Real-Ip"));
   }
+  
+  /**
+   * Test Proxy in Connection
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void testProxyConnection() throws Exception {
+
+    Proxy used = GhostMe.getProxy(true);
+
+    ProxyBinResponse response = GhostMeHelper.getMyInformation(used.getJavaNetProxy());
+    assertEquals(used.getIp().trim(), response.getOrigin().trim());
+    assertEquals(used.getIp().trim(), response.getHeaders().get("X-Forwarded-For"));
+    assertEquals(used.getIp().trim(), response.getHeaders().get("X-Real-Ip"));
+  }
+
 }
