@@ -13,34 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.brunocvcunha.ghostme4j;
+package org.brunocvcunha.ghostme4j.helper;
 
-import static org.junit.Assert.*;
-
-import org.brunocvcunha.ghostme4j.model.Proxy;
-import org.junit.Test;
+import org.brunocvcunha.inutils4j.MyStringUtils;
 
 /**
- * Proxy Status Test
+ * Ghost Me Helper
  * 
  * @author Bruno Candido Volpato da Cunha
  *
  */
-public class ProxyStatusTest {
+public class GhostMeHelper {
 
   /**
-   * Test the results of a status update
+   * @return my ip
    */
-  @Test
-  public void testStatus() {
-    Proxy proxy = new Proxy();
-    proxy.setIp("172.217.28.110");
-    proxy.setPort(80);
-
-    proxy.updateStatus();
-
-    assertTrue(proxy.isOnline());
-    assertTrue(proxy.getLatency() > 0);
-
+  public static String getMyIp() {
+    String ip = MyStringUtils.getContent("http://ipinfo.io/ip");
+    return ip;
   }
 }

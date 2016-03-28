@@ -17,30 +17,29 @@ package org.brunocvcunha.ghostme4j;
 
 import static org.junit.Assert.*;
 
+import org.brunocvcunha.ghostme4j.helper.GhostMeHelper;
 import org.brunocvcunha.ghostme4j.model.Proxy;
 import org.junit.Test;
 
 /**
- * Proxy Status Test
+ * Proxy Me Test
  * 
  * @author Bruno Candido Volpato da Cunha
  *
  */
-public class ProxyStatusTest {
+public class ProxyMeTest {
 
   /**
-   * Test the results of a status update
+   * Test Proxy Application
+   * 
+   * @throws Exception
    */
   @Test
-  public void testStatus() {
-    Proxy proxy = new Proxy();
-    proxy.setIp("172.217.28.110");
-    proxy.setPort(80);
+  public void testProxy() throws Exception {
 
-    proxy.updateStatus();
+    Proxy used = GhostMe.ghostMySystemProperties(true);
 
-    assertTrue(proxy.isOnline());
-    assertTrue(proxy.getLatency() > 0);
+    assertEquals(used.getIp().trim(), GhostMeHelper.getMyIp().trim());
 
   }
 }
