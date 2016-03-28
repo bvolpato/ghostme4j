@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.brunocvcunha.ghostme4j.GhostMe;
 import org.brunocvcunha.ghostme4j.model.Proxy;
 import org.brunocvcunha.inutils4j.MyHTTPUtils;
 import org.jsoup.Jsoup;
@@ -44,11 +45,8 @@ public class FreeProxyListProvider implements IProxyProvider {
 
   @Override
   public List<Proxy> getProxies(int quantity, boolean test) throws IOException {
-    System
-        .setProperty(
-            "http.agent",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36");
-
+    GhostMe.applyUserAgent();
+    
     List<Proxy> proxies = new ArrayList<>();
 
     String url = "http://free-proxy-list.net/";

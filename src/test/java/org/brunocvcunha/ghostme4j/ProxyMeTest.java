@@ -55,11 +55,24 @@ public class ProxyMeTest {
   public void testProxyConnection() throws Exception {
 
     Proxy used = GhostMe.getProxy(true);
-
+    
     ProxyBinResponse response = GhostMeHelper.getMyInformation(used.getJavaNetProxy());
     assertEquals(used.getIp().trim(), response.getOrigin().trim());
     assertEquals(used.getIp().trim(), response.getHeaders().get("X-Forwarded-For"));
     assertEquals(used.getIp().trim(), response.getHeaders().get("X-Real-Ip"));
+  }
+  
+  
+  /**
+   * Test function to get random user agents
+   */
+  @Test
+  public void testUserAgent() {
+    String agent = GhostMe.getRandomUserAgent();
+    System.out.println("Agent is: " + agent);
+    
+    assertNotNull(agent);
+    assertTrue(agent.contains("Mozilla/5.0"));
   }
 
 }

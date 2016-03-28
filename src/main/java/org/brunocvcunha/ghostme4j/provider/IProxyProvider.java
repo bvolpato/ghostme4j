@@ -15,6 +15,7 @@
  */
 package org.brunocvcunha.ghostme4j.provider;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.brunocvcunha.ghostme4j.model.Proxy;
@@ -35,6 +36,6 @@ public interface IProxyProvider {
   /**
    * @return Proxy list
    */
-  List<Proxy> getProxies(int quantity, boolean test) throws Exception;
+  List<Proxy> getProxies(int quantity, boolean test) throws IOException;
 
 }

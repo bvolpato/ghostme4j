@@ -15,6 +15,7 @@
  */
 package org.brunocvcunha.ghostme4j;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -22,6 +23,7 @@ import org.brunocvcunha.ghostme4j.model.Proxy;
 import org.brunocvcunha.ghostme4j.provider.FreeProxyListProvider;
 import org.brunocvcunha.ghostme4j.provider.IProxyProvider;
 import org.brunocvcunha.inutils4j.MyNumberUtils;
+import org.brunocvcunha.inutils4j.MyStringUtils;
 
 /**
  * Ghost Me! ;-)
@@ -39,11 +41,12 @@ public class GhostMe {
 
   /**
    * Get a Proxy
+   * 
    * @param test whether to test the proxy
    * @return used proxy
-   * @throws Exception
+   * @throws IOException I/O Error
    */
-  public static Proxy getProxy(boolean test) throws Exception {
+  public static Proxy getProxy(boolean test) throws IOException {
     LOGGER.info("Getting proxy...");
 
     int providerIndex = MyNumberUtils.randomIntBetween(0, PROVIDERS.length - 1);
@@ -57,7 +60,7 @@ public class GhostMe {
         if (!proxy.isOnline()) {
           continue;
         }
-        
+
         proxy.updateAnonymity();
         if (!proxy.isAnonymous()) {
           continue;
@@ -75,11 +78,12 @@ public class GhostMe {
 
   /**
    * Ghost the HTTP in the system properties
+   * 
    * @param test whether to test the proxy
    * @return used proxy
-   * @throws Exception
+   * @throws IOException I/O Exception
    */
-  public static Proxy ghostMySystemProperties(boolean test) throws Exception {
+  public static Proxy ghostMySystemProperties(boolean test) throws IOException {
     LOGGER.info("Ghosting System Properties...");
 
     Proxy use = getProxy(test);
@@ -91,9 +95,10 @@ public class GhostMe {
     return use;
   }
 
-  
+
   /**
    * Apply Proxy
+   * 
    * @param use Proxy to use
    */
   public static void applyProxy(Proxy use) {
@@ -102,4 +107,38 @@ public class GhostMe {
     System.setProperty("https.proxyHost", use.getIp());
     System.setProperty("https.proxyPort", String.valueOf(use.getPort()));
   }
-} 
+
+  /**
+   * Apply Random User Agent
+   */
+  public static void applyUserAgent() {
+    applyUserAgent(getRandomUserAgent());
+  }
+
+  /**
+   * Apply User Agent
+   * 
+   * @param agent Agent to apply
+   */
+  public static void applyUserAgent(String agent) {
+    System.setProperty("http.agent", agent);
+
+  }
+
+  /**
+   * @return a random user-agent
+   */
+  public static String getRandomUserAgent() {
+    try {
+      List<String> userAgents =
+          MyStringUtils.getContentLines(GhostMe.class.getResourceAsStream("/userAgent.txt"));
+      int agentIndex = MyNumberUtils.randomIntBetween(0, userAgents.size() - 1);
+      return userAgents.get(agentIndex);
+    } catch (IOException e) {
+      LOGGER.error("Error to get user agents", e);
+    }
+
+    return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36";
+  }
+
+}
