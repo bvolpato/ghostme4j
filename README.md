@@ -31,7 +31,20 @@ Usage Example
 --------
 
 ```java
+  Proxy used = GhostMe.ghostMySystemProperties(true); //true if it needs to test proxy connectivity/anonymity
+  URL url = new URL("https://github.com/brunocvcunha/ghostme4j");
+  URLConnection conn = url.openConnection(used.getJavaNetProxy());
 ```
+
+or apply to the system properties (`http.proxyHost` and `http.proxyPort`), and no need to pass it in parameters:
+
+```java
+  Proxy used = GhostMe.getProxy(true);  //true if it needs to test proxy connectivity/anonymity
+  URL url = new URL("https://github.com/brunocvcunha/ghostme4j");
+  URLConnection conn = url.openConnection();
+```
+
+
 
 
  [1]: https://search.maven.org/remote_content?g=org.brunocvcunha.ghostme4j&a=ghostme4j&v=LATEST
