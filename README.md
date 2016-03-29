@@ -45,6 +45,27 @@ or apply to the system properties (`http.proxyHost` and `http.proxyPort`), and n
 ```
 
 
+You can also get a random User-Agent, to fake a real browser connection (e.g. `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36`)
+
+To apply in the system properties:
+```java
+  GhostMe.applyUserAgent();
+```
+
+Or to get an User-Agent:
+```java
+  String userAgent = GhostMe.getRandomUserAgent();
+```
+
+Full GhostMe example:
+```java
+  Proxy used = GhostMe.ghostMySystemProperties(true); //true if it needs to test proxy connectivity/anonymity
+
+  URL url = new URL("https://github.com/brunocvcunha/ghostme4j");
+  URLConnection conn = url.openConnection(used.getJavaNetProxy());
+  conn.addRequestProperty(HttpHeaders.USER_AGENT, GhostMe.getRandomUserAgent());
+
+```
 
 
  [1]: https://search.maven.org/remote_content?g=org.brunocvcunha.ghostme4j&a=ghostme4j&v=LATEST
