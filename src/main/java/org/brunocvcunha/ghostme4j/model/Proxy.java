@@ -39,6 +39,7 @@ public class Proxy {
   private boolean online;
   private long latency;
   private boolean anonymous;
+  private String sourceLine;
 
   /**
    * @return the ip
@@ -136,6 +137,20 @@ public class Proxy {
    */
   public void setAnonymous(boolean anonymous) {
     this.anonymous = anonymous;
+  }
+
+  /**
+   * @return the sourceLine
+   */
+  public String getSourceLine() {
+    return sourceLine;
+  }
+
+  /**
+   * @param sourceLine the sourceLine to set
+   */
+  public void setSourceLine(String sourceLine) {
+    this.sourceLine = sourceLine;
   }
 
   /**
@@ -264,15 +279,16 @@ public class Proxy {
     return new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(ip, port));
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see java.lang.Object#toString()
    */
   @Override
   public String toString() {
-    return String.format("Proxy [ip=%s, port=%s, type=%s, country=%s, online=%s, latency=%s]", ip,
-        port, type, country, online, latency);
+    return String
+        .format(
+            "Proxy [ip=%s, port=%s, type=%s, country=%s, online=%s, latency=%s, anonymous=%s, sourceLine=%s]",
+            ip, port, type, country, online, latency, anonymous, sourceLine);
   }
+
 
 }

@@ -36,6 +36,6 @@ public interface IProxyProvider {
   /**
    * @return Proxy list
    */
-  List<Proxy> getProxies(int quantity, boolean test) throws IOException;
+  List<Proxy> getProxies(int quantity, boolean test, boolean useCache) throws IOException;
 
 }

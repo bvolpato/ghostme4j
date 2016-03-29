@@ -52,24 +52,30 @@ public class GhostMe {
     int providerIndex = MyNumberUtils.randomIntBetween(0, PROVIDERS.length - 1);
     IProxyProvider randomProvider = PROVIDERS[providerIndex];
 
-    List<Proxy> proxies = randomProvider.getProxies(-1, false);
+    List<Proxy> proxies = randomProvider.getProxies(-1, false, true);
+    LOGGER.info("Total Proxies: " + proxies.size());
+    
     for (Proxy proxy : proxies) {
 
-      if (test) {
-        proxy.updateStatus();
-        if (!proxy.isOnline()) {
-          continue;
+      try {
+
+        if (test) {
+          proxy.updateStatus();
+          if (!proxy.isOnline()) {
+            continue;
+          }
+
+          proxy.updateAnonymity();
+          if (!proxy.isAnonymous()) {
+            continue;
+          }
         }
 
-        proxy.updateAnonymity();
-        if (!proxy.isAnonymous()) {
-          continue;
-        }
+        LOGGER.info("Using Proxy: " + proxy.toString());
+        return proxy;
+      } catch (Exception e) {
+        LOGGER.info("Proxy validation returned error: " + e.getMessage(), e);
       }
-
-      LOGGER.info("Using Proxy: " + proxy.toString());
-      return proxy;
-
     }
 
     return null;
@@ -121,8 +127,9 @@ public class GhostMe {
    * @param agent Agent to apply
    */
   public static void applyUserAgent(String agent) {
+    LOGGER.info("Applying agent: " + agent);
     System.setProperty("http.agent", agent);
-
+    System.setProperty("https.agent", agent);
   }
 
   /**

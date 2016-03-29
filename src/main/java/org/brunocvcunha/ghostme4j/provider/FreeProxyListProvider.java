@@ -17,11 +17,20 @@ package org.brunocvcunha.ghostme4j.provider;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.brunocvcunha.ghostme4j.GhostMe;
 import org.brunocvcunha.ghostme4j.model.Proxy;
+import org.brunocvcunha.inutils4j.MyDateUtils;
 import org.brunocvcunha.inutils4j.MyHTTPUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -38,49 +47,103 @@ public class FreeProxyListProvider implements IProxyProvider {
 
   private static final Logger LOGGER = Logger.getLogger(FreeProxyListProvider.class);
 
+  private long lastFetchTime = 0;
+
+  private List<Proxy> lastFetchList;
+
+
   @Override
   public String getName() {
-    return "free-proxy-list.net";
+    return "www.free-proxy-list.net";
   }
 
   @Override
-  public List<Proxy> getProxies(int quantity, boolean test) throws IOException {
-    GhostMe.applyUserAgent();
-    
-    List<Proxy> proxies = new ArrayList<>();
+  public List<Proxy> getProxies(final int quantity, final boolean test, final boolean useCache)
+      throws IOException {
 
-    String url = "http://free-proxy-list.net/";
+    // 5 min
+    if (useCache && lastFetchList != null
+        && lastFetchTime > (System.currentTimeMillis() - (MyDateUtils.MINUTE_MILLIS * 5))) {
+      LOGGER.info("Fetch from cache.");
+      return lastFetchList;
+    }
+
+    final List<Proxy> proxies = new CopyOnWriteArrayList<>();
+
+    String url = "http://www.free-proxy-list.net/";
 
 
-    LOGGER.info("Fetching URL: " + url);
+    LOGGER.info("Fetching Proxy URL: " + url);
 
-    String content = MyHTTPUtils.getContent(url);
+    Map<String, String> headers = new LinkedHashMap<>();
+    headers.put("User-Agent", GhostMe.getRandomUserAgent());
 
+    // "http://httpbin.org/get?show_env=1"
+    String content = MyHTTPUtils.getContent(url, headers);
+
+    LOGGER.debug("Content: " + content);
     Document doc = Jsoup.parse(content);
     Elements table = doc.select("table#proxylisttable");
 
     Elements proxyLine = table.select("tbody > tr");
 
+    // shuffle
+    List<Elements> elementList = new ArrayList<>();
     for (Element proxyElement : proxyLine) {
-      LOGGER.info("Parsing line: " + proxyElement.text());
-
       Elements proxyTd = proxyElement.children();
-
-      Proxy proxy = new Proxy();
-      proxy.setIp(proxyTd.get(0).text());
-      proxy.setPort(Integer.valueOf(proxyTd.get(1).text()));
-      proxy.setCountry(proxyTd.get(2).text());
-
-      if (test) {
-        proxy.updateStatus();
-      }
-
-      proxies.add(proxy);
-
-      if (quantity > 0 && proxies.size() >= quantity) {
-        break;
-      }
+      elementList.add(proxyTd);
     }
+    Collections.shuffle(elementList);
+
+    final ExecutorService testService = Executors.newFixedThreadPool(10);
+
+    final CountDownLatch countDown = new CountDownLatch(elementList.size());
+
+    for (final Elements proxyTd : elementList) {
+
+      Thread validateTd = new Thread() {
+        @Override
+        public void run() {
+          try {
+            LOGGER.info("Validate line: " + proxyTd.text());
+            
+            Proxy proxy = new Proxy();
+            proxy.setIp(proxyTd.get(0).text());
+            proxy.setPort(Integer.valueOf(proxyTd.get(1).text()));
+            proxy.setCountry(proxyTd.get(2).text());
+            proxy.setSourceLine(proxyTd.text());
+
+            if (test) {
+              proxy.updateStatus();
+            }
+
+            proxies.add(proxy);
+
+            if (quantity > 0 && proxies.size() >= quantity) {
+              //countdown to 0, don't need to wait anymore
+              while (countDown.getCount() > 0) {
+                countDown.countDown();
+              }
+              
+            }
+          } finally {
+            countDown.countDown();
+          }
+        }
+      };
+      testService.submit(validateTd);
+      
+    }
+
+    try {
+      countDown.await();
+      testService.shutdownNow();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    lastFetchList = proxies;
+    lastFetchTime = System.currentTimeMillis();
 
     return proxies;
   }

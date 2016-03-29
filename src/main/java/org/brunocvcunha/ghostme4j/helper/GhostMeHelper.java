@@ -45,7 +45,7 @@ public class GhostMeHelper {
    * @throws IOException I/O Error
    */
   public static ProxyBinResponse getMyInformation(Proxy proxyToUse) throws IOException {
-    String ipInfo = MyHTTPUtils.getContent("http://httpbin.org/get?show_env=1", new LinkedHashMap<String, String>(), proxyToUse);
+    String ipInfo = MyHTTPUtils.getContent("https://httpbin.org/get?show_env=1", new LinkedHashMap<String, String>(), proxyToUse);
 
     return new GsonBuilder().create().fromJson(ipInfo, ProxyBinResponse.class);
   }

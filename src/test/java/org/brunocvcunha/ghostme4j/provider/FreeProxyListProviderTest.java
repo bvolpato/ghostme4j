@@ -39,7 +39,7 @@ public class FreeProxyListProviderTest {
   public void fetchTest() throws Exception {
     IProxyProvider provider = new FreeProxyListProvider();
 
-    List<Proxy> proxies = provider.getProxies(5, true);
+    List<Proxy> proxies = provider.getProxies(5, true, true);
     assertFalse(proxies.isEmpty());
 
     for (Proxy proxy : proxies) {
