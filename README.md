@@ -1,9 +1,12 @@
 ghostme4j
 ========
-Ghostme4j - HTTP Proxifier
+:ghost: Ghostme4j - HTTP Proxifier
+Search and use proxies in an easy way.
+
 
 [![Apache License](http://img.shields.io/badge/license-ASL-blue.svg)](https://github.com/brunocvcunha/ghostme4j/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/brunocvcunha/ghostme4j.svg)](https://travis-ci.org/brunocvcunha/ghostme4j)
+
 
 
 Download
