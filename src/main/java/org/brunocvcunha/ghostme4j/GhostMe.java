@@ -17,6 +17,10 @@ package org.brunocvcunha.ghostme4j;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.brunocvcunha.ghostme4j.model.Proxy;
@@ -33,7 +37,7 @@ import org.brunocvcunha.inutils4j.MyStringUtils;
  */
 public class GhostMe {
 
-  private static final Logger LOGGER = Logger.getLogger(GhostMe.class);
+  protected static final Logger LOGGER = Logger.getLogger(GhostMe.class);
 
   private static final IProxyProvider[] PROVIDERS =
       new IProxyProvider[] {new FreeProxyListProvider()};
@@ -46,7 +50,7 @@ public class GhostMe {
    * @return used proxy
    * @throws IOException I/O Error
    */
-  public static Proxy getProxy(boolean test) throws IOException {
+  public static Proxy getProxy(final boolean test) throws IOException {
     LOGGER.info("Getting proxy...");
 
     int providerIndex = MyNumberUtils.randomIntBetween(0, PROVIDERS.length - 1);
@@ -54,31 +58,61 @@ public class GhostMe {
 
     List<Proxy> proxies = randomProvider.getProxies(-1, false, true);
     LOGGER.info("Total Proxies: " + proxies.size());
-    
-    for (Proxy proxy : proxies) {
 
-      try {
+    final CountDownLatch countDown = new CountDownLatch(proxies.size());
+    final AtomicReference<Proxy> useProxy = new AtomicReference<>();
+    final ExecutorService testService = Executors.newFixedThreadPool(10);
 
-        if (test) {
-          proxy.updateStatus();
-          if (!proxy.isOnline()) {
-            continue;
-          }
+    for (final Proxy proxy : proxies) {
 
-          proxy.updateAnonymity();
-          if (!proxy.isAnonymous()) {
-            continue;
+      Thread validate = new Thread() {
+        @Override
+        public void run() {
+          try {
+
+            if (test) {
+              proxy.updateStatus();
+              if (!proxy.isOnline()) {
+                return;
+              }
+
+              proxy.updateAnonymity();
+              if (!proxy.isAnonymous()) {
+                return;
+              }
+            }
+
+            if (useProxy.get() == null) {
+              LOGGER.info("Using Proxy: " + proxy.toString());
+              useProxy.set(proxy);
+
+              // count to 0
+              while (countDown.getCount() > 0) {
+                countDown.countDown();
+              }
+
+            }
+
+          } catch (Exception e) {
+            LOGGER.info("Proxy validation returned error: " + e.getMessage(), e);
+          } finally {
+            countDown.countDown();
           }
         }
+      };
+      testService.submit(validate);
 
-        LOGGER.info("Using Proxy: " + proxy.toString());
-        return proxy;
-      } catch (Exception e) {
-        LOGGER.info("Proxy validation returned error: " + e.getMessage(), e);
-      }
     }
 
-    return null;
+    try {
+      countDown.await();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    testService.shutdownNow();
+
+    return useProxy.get();
 
   }
 

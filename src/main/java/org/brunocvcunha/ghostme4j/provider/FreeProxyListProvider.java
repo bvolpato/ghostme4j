@@ -25,7 +25,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.brunocvcunha.ghostme4j.GhostMe;
@@ -106,6 +105,11 @@ public class FreeProxyListProvider implements IProxyProvider {
         public void run() {
           try {
             LOGGER.info("Validate line: " + proxyTd.text());
+            
+            if (proxyTd.get(4).text().equalsIgnoreCase("transparent")) {
+              // transparent is not enough to ghost :)
+              return;
+            }
             
             Proxy proxy = new Proxy();
             proxy.setIp(proxyTd.get(0).text());
