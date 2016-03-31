@@ -25,7 +25,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
 import org.brunocvcunha.ghostme4j.model.Proxy;
 import org.brunocvcunha.ghostme4j.provider.FreeProxyListProvider;
+import org.brunocvcunha.ghostme4j.provider.GoogleProxyProvider;
 import org.brunocvcunha.ghostme4j.provider.IProxyProvider;
+import org.brunocvcunha.ghostme4j.provider.SSLProxiesProvider;
 import org.brunocvcunha.inutils4j.MyNumberUtils;
 import org.brunocvcunha.inutils4j.MyStringUtils;
 
@@ -40,7 +42,7 @@ public class GhostMe {
   protected static final Logger LOGGER = Logger.getLogger(GhostMe.class);
 
   private static final IProxyProvider[] PROVIDERS =
-      new IProxyProvider[] {new FreeProxyListProvider()};
+      new IProxyProvider[] {new FreeProxyListProvider(), new SSLProxiesProvider(), new GoogleProxyProvider()};
 
 
   /**

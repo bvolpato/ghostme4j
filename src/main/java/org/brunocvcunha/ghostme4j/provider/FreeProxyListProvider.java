@@ -69,7 +69,7 @@ public class FreeProxyListProvider implements IProxyProvider {
 
     final List<Proxy> proxies = new CopyOnWriteArrayList<>();
 
-    String url = "http://www.free-proxy-list.net/";
+    String url = getUrl();
 
 
     LOGGER.info("Fetching Proxy URL: " + url);
@@ -150,6 +150,13 @@ public class FreeProxyListProvider implements IProxyProvider {
     lastFetchTime = System.currentTimeMillis();
 
     return proxies;
+  }
+
+  /**
+   * @return the url to fetch
+   */
+  protected String getUrl() {
+    return "http://www.free-proxy-list.net/";
   }
 
 }
