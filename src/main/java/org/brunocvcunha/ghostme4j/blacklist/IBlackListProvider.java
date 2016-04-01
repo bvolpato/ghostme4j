@@ -13,35 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.brunocvcunha.ghostme4j;
+package org.brunocvcunha.ghostme4j.blacklist;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.util.List;
 
 import org.brunocvcunha.ghostme4j.model.Proxy;
-import org.junit.Test;
 
 /**
- * Proxy Status Test
+ * Blacklist Provider Interface
  * 
  * @author Bruno Candido Volpato da Cunha
  *
  */
-public class ProxyStatusTest {
+public interface IBlackListProvider {
+  
+  /**
+   * @return Name
+   */
+  String getName();
 
   /**
-   * Test the results of a status update
+   * @return IP list
    */
-  @Test
-  public void testStatus() {
-    Proxy proxy = new Proxy();
-    proxy.setIp("github.com");
-    proxy.setPort(80);
+  List<String> getIPs() throws IOException;
 
-    proxy.updateStatus();
-
-    assertFalse(proxy.isBlackListed());
-    assertTrue(proxy.isOnline());
-    assertTrue(proxy.getLatency() > 0);
-
-  }
 }

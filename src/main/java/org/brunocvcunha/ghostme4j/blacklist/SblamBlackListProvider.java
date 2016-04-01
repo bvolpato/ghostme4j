@@ -13,40 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.brunocvcunha.ghostme4j.provider;
+package org.brunocvcunha.ghostme4j.blacklist;
 
-import static org.junit.Assert.*;
-
+import java.io.IOException;
 import java.util.List;
 
-import org.brunocvcunha.ghostme4j.model.Proxy;
-import org.junit.Test;
+import org.brunocvcunha.ghostme4j.helper.GhostMeHelper;
+import org.brunocvcunha.inutils4j.MyHTTPUtils;
+import org.brunocvcunha.inutils4j.MyStringUtils;
 
 /**
- * FreeProxyList Test
- * 
+ * Sblam.com Blacklist
  * @author Bruno Candido Volpato da Cunha
  *
  */
-public class FreeProxyListProviderTest {
+public class SblamBlackListProvider implements IBlackListProvider {
 
-  /**
-   * Fetch Test
-   * 
-   * @throws Exception
-   */
-  @Test
-  public void fetchTest() throws Exception {
-    IProxyProvider provider = new FreeProxyListProvider();
-
-    List<Proxy> proxies = provider.getProxies(10, true, true);
-    assertFalse(proxies.isEmpty());
-
-    for (Proxy proxy : proxies) {
-      System.out.println("Blacklisted? " + proxy.isBlackListed());
-      assertNotNull(proxy);
-      assertNotNull(proxy.getIp());
-      assertTrue(proxy.getPort() > 0);
-    }
+  @Override
+  public String getName() {
+    return "sblam.com";
   }
+
+  @Override
+  public List<String> getIPs() throws IOException {
+    GhostMeHelper.disableSslVerification();
+    String ips = MyHTTPUtils.getContent("https://sblam.com/blacklist.txt");
+    
+    //replace comment lines
+    ips = ips.replaceAll("#[^\n]*\r?\n", "");
+
+    return MyStringUtils.asListLines(ips);
+  }
+
 }

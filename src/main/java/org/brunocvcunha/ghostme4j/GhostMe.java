@@ -16,13 +16,17 @@
 package org.brunocvcunha.ghostme4j;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
+import org.brunocvcunha.ghostme4j.blacklist.IBlackListProvider;
+import org.brunocvcunha.ghostme4j.blacklist.SblamBlackListProvider;
 import org.brunocvcunha.ghostme4j.model.Proxy;
 import org.brunocvcunha.ghostme4j.provider.FreeProxyListProvider;
 import org.brunocvcunha.ghostme4j.provider.GoogleProxyProvider;
@@ -41,9 +45,13 @@ public class GhostMe {
 
   protected static final Logger LOGGER = Logger.getLogger(GhostMe.class);
 
-  private static final IProxyProvider[] PROVIDERS =
-      new IProxyProvider[] {new FreeProxyListProvider(), new SSLProxiesProvider(), new GoogleProxyProvider()};
+  private static final IProxyProvider[] PROVIDERS = new IProxyProvider[] {
+      new FreeProxyListProvider(), new SSLProxiesProvider(), new GoogleProxyProvider()};
+  private static final IBlackListProvider[] BLACKLIST_PROVIDERS =
+      new IBlackListProvider[] {new SblamBlackListProvider()};
 
+
+  private static Set<String> blacklistCache;
 
   /**
    * Get a Proxy
@@ -53,17 +61,30 @@ public class GhostMe {
    * @throws IOException I/O Error
    */
   public static Proxy getProxy(final boolean test) throws IOException {
-    LOGGER.info("Getting proxy...");
-
+    
     int providerIndex = MyNumberUtils.randomIntBetween(0, PROVIDERS.length - 1);
     IProxyProvider randomProvider = PROVIDERS[providerIndex];
+    
+    return getProxy(randomProvider, test);
+  }
+  
+  /**
+   * Get a Proxy, using the given provider
+   * 
+   * @param provider provider to use
+   * @param test whether to test the proxy
+   * @return used proxy
+   * @throws IOException I/O Error
+   */
+  public static Proxy getProxy(final IProxyProvider provider, final boolean test) throws IOException {
+    LOGGER.info("Getting proxy...");
 
-    List<Proxy> proxies = randomProvider.getProxies(-1, false, true);
+    List<Proxy> proxies = provider.getProxies(-1, false, true);
     LOGGER.info("Total Proxies: " + proxies.size());
 
     final CountDownLatch countDown = new CountDownLatch(proxies.size());
     final AtomicReference<Proxy> useProxy = new AtomicReference<>();
-    final ExecutorService testService = Executors.newFixedThreadPool(10);
+    final ExecutorService testService = Executors.newFixedThreadPool(Integer.max(proxies.size(), 10));
 
     for (final Proxy proxy : proxies) {
 
@@ -73,6 +94,11 @@ public class GhostMe {
           try {
 
             if (test) {
+              
+              if (proxy.isBlackListed()) {
+                return;
+              }
+              
               proxy.updateStatus();
               if (!proxy.isOnline()) {
                 return;
@@ -114,6 +140,11 @@ public class GhostMe {
 
     testService.shutdownNow();
 
+    if (useProxy.get() == null) {
+      //if null, use another provider
+      return getProxy(test);
+    }
+    
     return useProxy.get();
 
   }
@@ -144,6 +175,7 @@ public class GhostMe {
    * @param use Proxy to use
    */
   public static void applyProxy(Proxy use) {
+    System.setProperty("java.net.useSystemProxies", "false");
     System.setProperty("http.proxyHost", use.getIp());
     System.setProperty("http.proxyPort", String.valueOf(use.getPort()));
     System.setProperty("https.proxyHost", use.getIp());
@@ -184,4 +216,26 @@ public class GhostMe {
     return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36";
   }
 
+
+  /**
+   * Check if the IP is in a blacklist 
+   * @param ip IP to check
+   * @return whether the ip is blacklisted or not
+   */
+  public synchronized static boolean isBlacklisted(String ip) {
+    if (blacklistCache == null || blacklistCache.isEmpty()) {
+      blacklistCache = new HashSet<>();
+
+      for (IBlackListProvider provider : BLACKLIST_PROVIDERS) {
+        try {
+          blacklistCache.addAll(provider.getIPs());
+        } catch (IOException e) {
+          LOGGER.warn("Error fetching blacklist records", e);
+        }
+      }
+
+    }
+    
+    return blacklistCache.contains(ip);
+  }
 }

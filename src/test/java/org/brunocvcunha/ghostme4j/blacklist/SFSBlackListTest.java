@@ -13,35 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.brunocvcunha.ghostme4j;
+package org.brunocvcunha.ghostme4j.blacklist;
 
 import static org.junit.Assert.*;
 
-import org.brunocvcunha.ghostme4j.model.Proxy;
+import java.io.IOException;
+import java.util.List;
+
+import org.brunocvcunha.ghostme4j.GhostMe;
+import org.brunocvcunha.ghostme4j.helper.GhostMeHelper;
 import org.junit.Test;
 
 /**
- * Proxy Status Test
- * 
+ * Sblam Black list
  * @author Bruno Candido Volpato da Cunha
  *
  */
-public class ProxyStatusTest {
+public class SFSBlackListTest {
 
   /**
-   * Test the results of a status update
+   * Test for fetch in the list
+   * @throws IOException 
    */
   @Test
-  public void testStatus() {
-    Proxy proxy = new Proxy();
-    proxy.setIp("github.com");
-    proxy.setPort(80);
-
-    proxy.updateStatus();
-
-    assertFalse(proxy.isBlackListed());
-    assertTrue(proxy.isOnline());
-    assertTrue(proxy.getLatency() > 0);
-
+  public void testFetch() throws IOException {
+    IBlackListProvider provider = new SFSBlackListProvider();
+    
+    List<String> ips = provider.getIPs();
+    System.out.println(ips);
+    assertFalse(ips.isEmpty());
   }
+
+  
 }

@@ -104,7 +104,7 @@ public class FreeProxyListProvider implements IProxyProvider {
         @Override
         public void run() {
           try {
-            LOGGER.info("Validate line: " + proxyTd.text());
+            LOGGER.debug("Validate line: " + proxyTd.text());
             
             if (proxyTd.get(4).text().equalsIgnoreCase("transparent")) {
               // transparent is not enough to ghost :)
@@ -116,7 +116,7 @@ public class FreeProxyListProvider implements IProxyProvider {
             proxy.setPort(Integer.valueOf(proxyTd.get(1).text()));
             proxy.setCountry(proxyTd.get(2).text());
             proxy.setSourceLine(proxyTd.text());
-
+            
             if (test) {
               proxy.updateStatus();
             }

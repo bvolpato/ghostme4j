@@ -22,6 +22,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
+import org.brunocvcunha.ghostme4j.GhostMe;
 import org.brunocvcunha.ghostme4j.helper.GhostMeHelper;
 
 /**
@@ -130,6 +131,13 @@ public class Proxy {
    */
   public boolean isAnonymous() {
     return anonymous;
+  }
+
+  /**
+   * @return if blacklisted
+   */
+  public boolean isBlackListed() {
+    return GhostMe.isBlacklisted(ip);
   }
 
   /**
@@ -276,7 +284,14 @@ public class Proxy {
    * @return java.net.Proxy for the current instance
    */
   public java.net.Proxy getJavaNetProxy() {
-    return new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(ip, port));
+    java.net.Proxy.Type typeToUse;
+    if (this.type == ProxyTypeEnum.SOCKS4 || this.type == ProxyTypeEnum.SOCKS5) {
+      typeToUse = java.net.Proxy.Type.SOCKS;
+    } else {
+      typeToUse = java.net.Proxy.Type.HTTP;
+    }
+    
+    return new java.net.Proxy(typeToUse, new InetSocketAddress(ip, port));
   }
 
   /* (non-Javadoc)
