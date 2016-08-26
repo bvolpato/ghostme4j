@@ -18,7 +18,7 @@ Download [the latest JAR][1] or grab via Maven:
 <dependency>
   <groupId>org.brunocvcunha.ghostme4j</groupId>
   <artifactId>ghostme4j</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2</version>
 </dependency>
 ```
 or Gradle:
