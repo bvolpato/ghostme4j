@@ -23,7 +23,7 @@ Download [the latest JAR][1] or grab via Maven:
 ```
 or Gradle:
 ```groovy
-compile 'org.brunocvcunha.ghostme4j:ghostme4j:0.1-SNAPSHOT'
+compile 'org.brunocvcunha.ghostme4j:ghostme4j:0.2'
 ```
 
 Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
