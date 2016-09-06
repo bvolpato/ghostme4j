@@ -94,7 +94,12 @@ public class FreeProxyListProvider implements IProxyProvider {
     }
     Collections.shuffle(elementList);
 
-    final ExecutorService testService = Executors.newFixedThreadPool((elementList.size() > 10 ? 10 : elementList.size()));
+    int threadCount = elementList.size() > 10 ? 10 : elementList.size();
+    if (threadCount <= 0) {
+      threadCount = 1;
+    }
+    
+    final ExecutorService testService = Executors.newFixedThreadPool(threadCount);
 
     final CountDownLatch countDown = new CountDownLatch(elementList.size());
 

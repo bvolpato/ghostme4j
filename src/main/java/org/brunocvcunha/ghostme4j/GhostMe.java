@@ -84,7 +84,13 @@ public class GhostMe {
 
     final CountDownLatch countDown = new CountDownLatch(proxies.size());
     final AtomicReference<Proxy> useProxy = new AtomicReference<>();
-    final ExecutorService testService = Executors.newFixedThreadPool((proxies.size() > 10 ? 10 : proxies.size()));
+    
+    int threadCount = proxies.size() > 10 ? 10 : proxies.size();
+    if (threadCount <= 0) {
+      threadCount = 1;
+    }
+    
+    final ExecutorService testService = Executors.newFixedThreadPool(threadCount);
 
     for (final Proxy proxy : proxies) {
 
