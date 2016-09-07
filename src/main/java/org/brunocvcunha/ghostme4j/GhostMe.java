@@ -128,7 +128,7 @@ public class GhostMe {
             }
 
           } catch (Exception e) {
-            LOGGER.info("Proxy validation returned error: " + e.getMessage(), e);
+            LOGGER.info("Proxy validation returned error: " + e.getClass().getName() + " - " + e.getMessage());
           } finally {
             countDown.countDown();
           }
