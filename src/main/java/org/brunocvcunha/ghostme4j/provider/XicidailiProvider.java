@@ -42,9 +42,9 @@ import org.jsoup.select.Elements;
  * @author Bruno Candido Volpato da Cunha
  *
  */
-public class FreeProxyListProvider implements IProxyProvider {
+public class XicidailiProvider implements IProxyProvider {
 
-  private static final Logger LOGGER = Logger.getLogger(FreeProxyListProvider.class);
+  private static final Logger LOGGER = Logger.getLogger(XicidailiProvider.class);
 
   private long lastFetchTime = 0;
 
@@ -52,7 +52,7 @@ public class FreeProxyListProvider implements IProxyProvider {
 
   @Override
   public String getName() {
-    return "www.free-proxy-list.net";
+    return "www.xicidaili.com";
   }
 
   @Override
@@ -81,9 +81,9 @@ public class FreeProxyListProvider implements IProxyProvider {
 
     LOGGER.debug("Content: " + content);
     Document doc = Jsoup.parse(content);
-    Elements table = doc.select("table#proxylisttable");
+    Elements table = doc.select(".proxy_table");
 
-    Elements proxyLine = table.select("tbody > tr");
+    Elements proxyLine = table.select("tr + tr");
 
     // shuffle
     List<Elements> elementList = new ArrayList<>();
@@ -160,7 +160,7 @@ public class FreeProxyListProvider implements IProxyProvider {
    * @return the url to fetch
    */
   protected String getUrl() {
-    return "http://www.free-proxy-list.net/";
+    return "http://www.xicidaili.com/nt/";
   }
 
 }
