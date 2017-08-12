@@ -20,7 +20,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.brunocvcunha.ghostme4j</groupId>
 	<artifactId>ghostme4j</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.2</version>
 	<packaging>jar</packaging>
 	<name>Ghostme4j</name>
 	<description>Ghost me</description>

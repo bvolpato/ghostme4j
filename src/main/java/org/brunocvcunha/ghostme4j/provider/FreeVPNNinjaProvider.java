@@ -15,8 +15,6 @@
  */
 package org.brunocvcunha.ghostme4j.provider;
 
-import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,9 +25,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 import org.brunocvcunha.ghostme4j.GhostMe;
@@ -38,6 +33,8 @@ import org.brunocvcunha.ghostme4j.model.Proxy;
 import org.brunocvcunha.inutils4j.MyDateUtils;
 import org.brunocvcunha.inutils4j.MyHTTPUtils;
 import org.brunocvcunha.inutils4j.MyStringUtils;
+
+import com.google.gson.GsonBuilder;
 
 /**
  * freevpn.ninja provider
